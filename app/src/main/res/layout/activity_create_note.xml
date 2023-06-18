@@ -108,6 +108,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/inputNoteSubtitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/inputNoteSubtitle" />
+
             <EditText
                 android:id="@+id/inputNote"
                 android:layout_width="match_parent"
@@ -135,5 +136,7 @@
       </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
+
+    <include layout="@layout/layout_miscellaneous"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
