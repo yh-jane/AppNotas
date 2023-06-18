@@ -22,13 +22,11 @@ import com.example.appnotas.entities.Note;
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlin.collections.ArrayDeque;
-
 public class MainActivity extends AppCompatActivity {
-    public static final int REQUEST_CODE_ADD_NOTE =1;
+    public static final int REQUEST_CODE_ADD_NOTE = 1;
 
     private RecyclerView notesRecyclerView;
-    private List<Note>noteList;
+    private List<Note> noteList;
     private NotesAdapter notesAdapter;
 
 
@@ -43,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Intent data = result.getData();
+                        getNotes(); // Chama o método para atualizar as notas
                     }
                 });
 
@@ -52,47 +51,42 @@ public class MainActivity extends AppCompatActivity {
         });
 
         notesRecyclerView = findViewById(R.id.notesRecyclerView);
-        notesRecyclerView.setLayoutManager(
-                new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
-        );
+        notesRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         noteList = new ArrayList<>();
         notesAdapter = new NotesAdapter(noteList);
         notesRecyclerView.setAdapter(notesAdapter);
 
         getNotes();
     }
+
     @SuppressLint("StaticFieldLeak")
-    private void getNotes(){
-
+    private void getNotes() {
         class GetNotesTask extends AsyncTask<Void, Void, List<Note>> {
-
             @Override
-            protected List<Note> doInBackground (Void... voids){
-                return NotesDatabase
-                        .getDatabase(getApplicationContext())
-                        .noteDao().getAllNotes();
+            protected List<Note> doInBackground(Void... voids) {
+                return NotesDatabase.getDatabase(getApplicationContext()).noteDao().getAllNotes();
             }
 
             @Override
-            protected void onPostExecute(List<Note>notes){
+            protected void onPostExecute(List<Note> notes) {
                 super.onPostExecute(notes);
-                if(noteList.size()==0){
-                    noteList.addAll(notes);
-                    notesAdapter.notifyDataSetChanged();
-                }else {
-                    noteList.add(0,notes.get(0));
-                    notesAdapter.notifyItemInserted(0);
-                }
+                Log.d("GetNotesTask", "onPostExecute: notes size=" + notes.size());
+                noteList.clear(); // Limpa a lista de notas existente
+                noteList.addAll(notes); // Adiciona as notas atualizadas
+                notesAdapter.notifyDataSetChanged();
                 notesRecyclerView.smoothScrollToPosition(0);
             }
         }
+
         new GetNotesTask().execute();
     }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK){
-            getNotes();
+        Log.d("MainActivity", "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
+        if (requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK) {
+            getNotes(); // Chama o método para atualizar as notas
         }
     }
 }

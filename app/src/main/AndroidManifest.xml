@@ -9,7 +9,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppNotas">
+        android:theme="@style/Theme.AppNotas"
+        android:enableOnBackInvokedCallback="true">
+
         <activity
             android:name=".activities.CreateNoteActivity"
             android:screenOrientation="portrait"
