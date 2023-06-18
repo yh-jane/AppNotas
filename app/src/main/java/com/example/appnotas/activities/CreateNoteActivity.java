@@ -7,8 +7,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.appnotas.R;
+import com.example.appnotas.entities.Note;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,6 +45,14 @@ public class CreateNoteActivity extends AppCompatActivity {
     }
 
     private void saveNote(){
-        if (inputNoteTitle.getText().toString())
+        if (inputNoteTitle.getText().toString().trim().isEmpty()){
+            Toast.makeText(this, "O Título da Nota não pode ser vazio", Toast.LENGTH_SHORT).show();
+            return;
+        }else if (inputNoteSubtitle.getText().toString().trim().isEmpty()&& inputNoteText.getText().toString().trim().isEmpty()){
+            Toast.makeText(this, "Nota não pode ser vazio", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final Note note = new Note();
+        note.setTitle();
     }
 }
