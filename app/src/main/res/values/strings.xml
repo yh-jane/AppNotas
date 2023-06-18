@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AppNotas</string>
+    <string name="minhas_notas">Minhas Notas</string>
+    <string name="procurar_notas">Procurar Notas</string>
+    <string name="title_activity_create_notes">CreateNotesActivity</string>
+    <string name="title_note">Título da Nota</string>
+    <string name="subtitle_note">Subtítulo</string>
+    <string name="type_note_here">Digite sua nota...</string>
+</resources>
