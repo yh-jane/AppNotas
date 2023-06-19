@@ -63,6 +63,11 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
 
     @Override
     public void onNoteClicked(Note note, int position) {
+        noteClickedPosition = position;
+        Intent intent = new Intent(getApplicationContext(), CreateNoteActivity.class);
+        intent.putExtra("isViewOrUptade", true);
+        intent.putExtra("note", note);
+        startActivityForResult(intent, REQUEST_CODE_UPDATE_NOTE);
 
     }
 
