@@ -6,6 +6,6 @@
     <string name="title_note">Título da Nota</string>
     <string name="subtitle_note">Subtítulo</string>
     <string name="type_note_here">Digite sua nota...</string>
-    <string name="miscellaneous">Cores</string>
+    <string name="miscellaneous">Detalhes</string>
     <string name="aad_image">Adicionar Imagem</string>
 </resources>
