@@ -26,6 +26,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NotesListener {
     public static final int REQUEST_CODE_ADD_NOTE = 1;
     public static final int REQUEST_CODE_UPDATE_NOTE = 2;
+    public static final int REQUEST_CODE_SHOW_NOTES = 3;
     private RecyclerView notesRecyclerView;
     private List<Note> noteList;
     private NotesAdapter notesAdapter;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Intent data = result.getData();
-                        getNotes(); // Chama o método para atualizar as notas
+                        getNotes(REQUEST_CODE_UPDATE_NOTE); // Chama o método para atualizar as notas
                     }
                 });
 
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
         notesAdapter = new NotesAdapter(noteList,this);
         notesRecyclerView.setAdapter(notesAdapter);
 
-        getNotes();
+        getNotes(REQUEST_CODE_SHOW_NOTES);
     }
 
     @Override
@@ -67,12 +68,21 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
         Intent intent = new Intent(getApplicationContext(), CreateNoteActivity.class);
         intent.putExtra("isViewOrUptade", true);
         intent.putExtra("note", note);
-        startActivityForResult(intent, REQUEST_CODE_UPDATE_NOTE);
-
+        updateNoteLauncher.launch(intent);
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private void getNotes() {
+    private final ActivityResultLauncher<Intent> updateNoteLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+                    getNotes(REQUEST_CODE_UPDATE_NOTE); // Chama o método para atualizar as notas
+                }
+            }
+    );
+
+    private void getNotes(final int requestCode) {
+        @SuppressLint("StaticFieldLeak")
         class GetNotesTask extends AsyncTask<Void, Void, List<Note>> {
             @Override
             protected List<Note> doInBackground(Void... voids) {
@@ -82,11 +92,17 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
             @Override
             protected void onPostExecute(List<Note> notes) {
                 super.onPostExecute(notes);
-                Log.d("GetNotesTask", "onPostExecute: notes size=" + notes.size());
-                noteList.clear(); // Limpa a lista de notas existente
-                noteList.addAll(notes); // Adiciona as notas atualizadas
-                notesAdapter.notifyDataSetChanged();
-                notesRecyclerView.smoothScrollToPosition(0);
+                if (requestCode == REQUEST_CODE_SHOW_NOTES) {
+                    noteList.addAll(notes);
+                } else if (requestCode == REQUEST_CODE_ADD_NOTE) {
+                    noteList.add(0, notes.get(0));
+                    notesAdapter.notifyItemInserted(0);
+                    notesRecyclerView.smoothScrollToPosition(0);
+                } else if (requestCode == REQUEST_CODE_UPDATE_NOTE) {
+                    noteList.remove(noteClickedPosition);
+                    noteList.add(noteClickedPosition, notes.get(noteClickedPosition));
+                    notesAdapter.notifyDataSetChanged();
+                }
             }
         }
 
@@ -98,7 +114,11 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("MainActivity", "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
         if (requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK) {
-            getNotes(); // Chama o método para atualizar as notas
+            getNotes(REQUEST_CODE_ADD_NOTE); // Chama o método para atualizar as notas
+        } else if (requestCode == REQUEST_CODE_UPDATE_NOTE && resultCode == RESULT_OK) {
+            if (data != null) {
+                getNotes(REQUEST_CODE_UPDATE_NOTE);
+            }
         }
     }
 }
