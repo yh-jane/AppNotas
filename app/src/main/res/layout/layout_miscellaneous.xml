@@ -145,4 +145,30 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/layoutAddImage"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_image"
+            android:tint="@color/colorIcons"
+            tools:ignore="UseAppTint" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="casual"
+            android:includeFontPadding="false"
+            android:text="@string/aad_image"
+            android:textColor="@color/colorIcons"
+            android:textSize="12sp"/>
+
+
+    </LinearLayout>
+
 </LinearLayout>
