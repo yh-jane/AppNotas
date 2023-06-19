@@ -13,4 +13,5 @@
     <string name="add">Adicione</string>
     <string name="cancel_dialog">Cancelar</string>
     <string name="delete_note">Delete a Nota</string>
+    <string name="check_delete_note">Você tem certeza que deseja excluir esta nota?</string>
 </resources>
