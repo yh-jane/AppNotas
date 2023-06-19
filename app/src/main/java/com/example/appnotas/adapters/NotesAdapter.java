@@ -3,11 +3,13 @@ package com.example.appnotas.adapters;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,8 +19,11 @@ import com.example.appnotas.entities.Note;
 import com.example.appnotas.listeners.NotesListener;
 import com.makeramen.roundedimageview.RoundedImageView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
+import android.os.Handler;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHolder> {
 
@@ -26,11 +31,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
     private NotesListener notesListener;
     private Timer timer;
     private List<Note> notesSources;
-    
+
 
     public NotesAdapter(List<Note> notes, NotesListener NotesListener) {
         this.notes = notes;
         this.notesListener = NotesListener;
+        notesSources = notes;
     }
 
 
@@ -100,5 +106,39 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
             }
         }
 
+    }
+
+    public void searchNotes (final String searchKeyboard){
+        timer = new Timer();
+        timer.schedule(new TimerTask(){
+            @Override
+            public void run(){
+                if(searchKeyboard.trim().isEmpty()){
+                    notes = notesSources;
+                } else {
+                    ArrayList<Note> temp = new ArrayList<>();
+                    for (Note note : notesSources){
+                        if(note.getTitle().toLowerCase().contains(searchKeyboard.toLowerCase())
+                        || note.getSubtitle().toLowerCase().contains(searchKeyboard.toLowerCase())
+                        || note.getNoteText().toLowerCase().contains(searchKeyboard.toLowerCase())){
+                            temp.add(note);
+                        }
+                        notes = temp;
+                    }
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDataSetChanged();
+                        }
+                    });
+                }
+
+            }
+        },500);
+    }
+    public void cancelTimer (){
+        if (timer != null){
+            timer.cancel();
+        }
     }
 }
