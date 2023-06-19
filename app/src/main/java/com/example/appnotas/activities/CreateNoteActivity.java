@@ -107,6 +107,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         note.setNoteText(inputNoteText.getText().toString());
         note.setDateTime(textDateTime.getText().toString());
         note.setColor(selectedNoteColor);
+        note.setImagePath(selectedImagePath);
 
         executor.submit(() -> {
             NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNote(note);
