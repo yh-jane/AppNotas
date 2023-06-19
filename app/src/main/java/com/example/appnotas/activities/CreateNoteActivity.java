@@ -110,6 +110,22 @@ public class CreateNoteActivity extends AppCompatActivity {
             alreadyAvailableNote = (Note) getIntent().getSerializableExtra("note");
             setViewOrUpdateNote();
         }
+        findViewById(R.id.imageRemoveWebURL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textWebURL.setText(null);
+                layoutWebURL.setVisibility(View.GONE);
+            }
+        });
+        findViewById(R.id.imageRemove).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageNote.setImageBitmap(null);
+                imageNote.setVisibility(View.GONE);
+                findViewById(R.id.imageRemove).setVisibility(View.GONE);
+                selectedImagePath = "";
+            }
+        });
 
         initMiscellaneous();
         setSubtitleIndicatorColor();
@@ -124,6 +140,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         if(alreadyAvailableNote.getImagePath()!=null && !alreadyAvailableNote.getImagePath().trim().isEmpty()){
             imageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote.getImagePath()));
             imageNote.setVisibility(View.VISIBLE);
+            findViewById(R.id.imageRemove).setVisibility(View.VISIBLE);
             selectedImagePath = alreadyAvailableNote.getImagePath();
         }
         if(alreadyAvailableNote.getWebLink() !=null && !alreadyAvailableNote.getWebLink().trim().isEmpty()){
@@ -331,6 +348,8 @@ public class CreateNoteActivity extends AppCompatActivity {
                         InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         imageNote.setImageBitmap(bitmap);
+                        imageNote.setVisibility(View.VISIBLE);
+                        findViewById(R.id.imageRemove).setVisibility((View.VISIBLE));
 
                         // Obtém o caminho da imagem selecionada
                         selectedImagePath = getPathFromUri(selectedImageUri);
