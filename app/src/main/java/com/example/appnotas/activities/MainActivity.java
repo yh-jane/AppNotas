@@ -101,18 +101,9 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
                     notesAdapter.notifyItemInserted(0); // Notifica o adaptador sobre a inserção do item
                     notesRecyclerView.smoothScrollToPosition(0); // Rolagem suave para a nova nota
                 } else if (requestCode == REQUEST_CODE_UPDATE_NOTE) {
-<<<<<<< Updated upstream
-                    noteList.remove(noteClickedPosition);
-                    if (isNoteDeleted){
-                        notesAdapter.notifyItemRemoved(noteClickedPosition);
-                    }else {
-                        noteList.add(noteClickedPosition, notes.get(noteClickedPosition));
-                        notesAdapter.notifyItemChanged(noteClickedPosition);
-=======
                     if (noteClickedPosition >= 0 && noteClickedPosition < noteList.size()) {
                         noteList.set(noteClickedPosition, notes.get(0)); // Substitui a nota modificada na lista
                         notesAdapter.notifyItemChanged(noteClickedPosition); // Notifica o adaptador sobre a mudança no item
->>>>>>> Stashed changes
                     }
                 }
             }
