@@ -18,11 +18,15 @@ import com.example.appnotas.listeners.NotesListener;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.util.List;
+import java.util.Timer;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHolder> {
 
     private List<Note> notes;
     private NotesListener notesListener;
+    private Timer timer;
+    private List<Note> notesSources;
+    
 
     public NotesAdapter(List<Note> notes, NotesListener NotesListener) {
         this.notes = notes;
