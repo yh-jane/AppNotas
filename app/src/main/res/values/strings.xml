@@ -11,4 +11,5 @@
     <string name="add_url">Adicione um link</string>
     <string name="enter_url">Digite o link</string>
     <string name="add">Adicione</string>
+    <string name="cancel_dialog">Cancelar</string>
 </resources>

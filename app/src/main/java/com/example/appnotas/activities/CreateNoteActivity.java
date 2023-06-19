@@ -51,6 +51,8 @@ public class CreateNoteActivity extends AppCompatActivity {
     private ExecutorService executor;
     private View viewSubtitleIndicator;
     private ImageView imageNote;
+    private TextView textWebURL;
+    private LinearLayout layoutWebURL;
 
     private String selectedNoteColor;
     private String selectedImagePath;
