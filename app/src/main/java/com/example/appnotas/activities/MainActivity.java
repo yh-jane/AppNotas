@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
     public void onNoteClicked(Note note, int position) {
         noteClickedPosition = position;
         Intent intent = new Intent(getApplicationContext(), CreateNoteActivity.class);
-        intent.putExtra("isViewOrUptade", true);
+        intent.putExtra("isViewOrUpdate", true);
         intent.putExtra("note", note);
         updateNoteLauncher.launch(intent);
     }
@@ -93,18 +93,26 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
             protected void onPostExecute(List<Note> notes) {
                 super.onPostExecute(notes);
                 if (requestCode == REQUEST_CODE_SHOW_NOTES) {
-                    noteList.addAll(notes);
+                    noteList.clear(); // Limpa a lista de notas existente
+                    noteList.addAll(notes); // Adiciona as novas notas à lista
+                    notesAdapter.notifyDataSetChanged(); // Notifica o adaptador sobre as mudanças
                 } else if (requestCode == REQUEST_CODE_ADD_NOTE) {
-                    noteList.add(0, notes.get(0));
-                    notesAdapter.notifyItemInserted(0);
-                    notesRecyclerView.smoothScrollToPosition(0);
+                    noteList.add(0, notes.get(0)); // Adiciona a nova nota no início da lista
+                    notesAdapter.notifyItemInserted(0); // Notifica o adaptador sobre a inserção do item
+                    notesRecyclerView.smoothScrollToPosition(0); // Rolagem suave para a nova nota
                 } else if (requestCode == REQUEST_CODE_UPDATE_NOTE) {
+<<<<<<< Updated upstream
                     noteList.remove(noteClickedPosition);
                     if (isNoteDeleted){
                         notesAdapter.notifyItemRemoved(noteClickedPosition);
                     }else {
                         noteList.add(noteClickedPosition, notes.get(noteClickedPosition));
                         notesAdapter.notifyItemChanged(noteClickedPosition);
+=======
+                    if (noteClickedPosition >= 0 && noteClickedPosition < noteList.size()) {
+                        noteList.set(noteClickedPosition, notes.get(0)); // Substitui a nota modificada na lista
+                        notesAdapter.notifyItemChanged(noteClickedPosition); // Notifica o adaptador sobre a mudança no item
+>>>>>>> Stashed changes
                     }
                 }
             }
