@@ -18,17 +18,19 @@ import com.example.appnotas.R;
 import com.example.appnotas.adapters.NotesAdapter;
 import com.example.appnotas.database.NotesDatabase;
 import com.example.appnotas.entities.Note;
+import com.example.appnotas.listeners.NotesListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NotesListener {
     public static final int REQUEST_CODE_ADD_NOTE = 1;
-
+    public static final int REQUEST_CODE_UPDATE_NOTE = 2;
     private RecyclerView notesRecyclerView;
     private List<Note> noteList;
     private NotesAdapter notesAdapter;
 
+    private int noteClickedPosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +55,15 @@ public class MainActivity extends AppCompatActivity {
         notesRecyclerView = findViewById(R.id.notesRecyclerView);
         notesRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         noteList = new ArrayList<>();
-        notesAdapter = new NotesAdapter(noteList);
+        notesAdapter = new NotesAdapter(noteList,this);
         notesRecyclerView.setAdapter(notesAdapter);
 
         getNotes();
+    }
+
+    @Override
+    public void onNoteClicked(Note note, int position) {
+
     }
 
     @SuppressLint("StaticFieldLeak")
