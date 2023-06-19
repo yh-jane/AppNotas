@@ -1,7 +1,10 @@
 package com.example.appnotas.activities;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -17,11 +20,15 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,9 +48,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-
 public class CreateNoteActivity extends AppCompatActivity {
 
     private EditText inputNoteTitle, inputNoteSubtitle, inputNoteText;
@@ -60,6 +64,8 @@ public class CreateNoteActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
     private static final int REQUEST_CODE_SELECT_IMAGE = 2;
 
+    private AlertDialog dialogAddURL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +81,8 @@ public class CreateNoteActivity extends AppCompatActivity {
         textDateTime = findViewById(R.id.textDateTime);
         viewSubtitleIndicator = findViewById(R.id.viewSubtitileIndicator);
         imageNote = findViewById(R.id.imageNote);
+        textWebURL = findViewById(R.id.textWebURL);
+        layoutWebURL = findViewById(R.id.layoutWebURL);
 
         // Define a data e hora atual para exibir na tela
         textDateTime.setText(
@@ -119,6 +127,10 @@ public class CreateNoteActivity extends AppCompatActivity {
         note.setColor(selectedNoteColor);
         note.setImagePath(selectedImagePath);
 
+        if(layoutWebURL.getVisibility()== View.VISIBLE){
+            note.setWebLink(textWebURL.getText().toString());
+        }
+
         // Salva a nota no banco de dados usando um ExecutorService em segundo plano
         executor.execute(() -> NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNote(note));
 
@@ -129,8 +141,8 @@ public class CreateNoteActivity extends AppCompatActivity {
 
     // Método para inicializar o painel inferior com opções adicionais
     private void initMiscellaneous() {
-        LinearLayout layoutMiscellaneous = findViewById(R.id.layoutMiscellaneous);
-        BottomSheetBehavior<LinearLayout> bottomSheetBehavior = BottomSheetBehavior.from(layoutMiscellaneous);
+        final LinearLayout layoutMiscellaneous = findViewById(R.id.layoutMiscellaneous);
+        final BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(layoutMiscellaneous);
         layoutMiscellaneous.findViewById(R.id.textMiscellaneous).setOnClickListener(v -> {
             if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -138,12 +150,67 @@ public class CreateNoteActivity extends AppCompatActivity {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
+        final ImageView imageColor1 = layoutMiscellaneous.findViewById(R.id.imageColor1);
+        final ImageView imageColor2 = layoutMiscellaneous.findViewById(R.id.imageColor2);
+        final ImageView imageColor3 = layoutMiscellaneous.findViewById(R.id.imageColor3);
+        final ImageView imageColor4 = layoutMiscellaneous.findViewById(R.id.imageColor4);
+        final ImageView imageColor5 = layoutMiscellaneous.findViewById(R.id.imageColor5);
 
-        // Opção para adicionar imagem
+        layoutMiscellaneous.findViewById(R.id.viewColor1).setOnClickListener(v -> {
+            selectedNoteColor = "#333333";
+            imageColor1.setImageResource(R.drawable.ic_done);
+            imageColor2.setImageResource(0);
+            imageColor3.setImageResource(0);
+            imageColor4.setImageResource(0);
+            imageColor5.setImageResource(0);
+            setSubtitleIndicatorColor();
+        });
+
+        layoutMiscellaneous.findViewById(R.id.viewColor2).setOnClickListener(v -> {
+            selectedNoteColor = "#FDBE3B";
+            imageColor1.setImageResource(0);
+            imageColor2.setImageResource(R.drawable.ic_done);
+            imageColor3.setImageResource(0);
+            imageColor4.setImageResource(0);
+            imageColor5.setImageResource(0);
+            setSubtitleIndicatorColor();
+        });
+
+        layoutMiscellaneous.findViewById(R.id.viewColor3).setOnClickListener(v -> {
+            selectedNoteColor = "#FF4842";
+            imageColor1.setImageResource(0);
+            imageColor2.setImageResource(0);
+            imageColor3.setImageResource(R.drawable.ic_done);
+            imageColor4.setImageResource(0);
+            imageColor5.setImageResource(0);
+            setSubtitleIndicatorColor();
+        });
+
+        layoutMiscellaneous.findViewById(R.id.viewColor4).setOnClickListener(v -> {
+            selectedNoteColor = "#3A41FC";
+            imageColor1.setImageResource(0);
+            imageColor2.setImageResource(0);
+            imageColor3.setImageResource(0);
+            imageColor4.setImageResource(R.drawable.ic_done);
+            imageColor5.setImageResource(0);
+            setSubtitleIndicatorColor();
+        });
+
+        layoutMiscellaneous.findViewById(R.id.viewColor5).setOnClickListener(v -> {
+            selectedNoteColor = "#000000";
+            imageColor1.setImageResource(0);
+            imageColor2.setImageResource(0);
+            imageColor3.setImageResource(0);
+            imageColor4.setImageResource(0);
+            imageColor5.setImageResource(R.drawable.ic_done);
+            setSubtitleIndicatorColor();
+        });
+
         layoutMiscellaneous.findViewById(R.id.layoutAddImage).setOnClickListener(v -> {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
                         CreateNoteActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -153,7 +220,15 @@ public class CreateNoteActivity extends AppCompatActivity {
                 selectImage();
             }
         });
+        layoutMiscellaneous.findViewById(R.id.layoutAddUrl).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                showAddURLDialog();
+            }
+        });
     }
+
 
     // Método para definir a cor do indicador de subtítulo
     private void setSubtitleIndicatorColor() {
@@ -165,9 +240,22 @@ public class CreateNoteActivity extends AppCompatActivity {
     private void selectImage() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE);
+            // Cria um ActivityResultLauncher para obter o resultado da seleção de imagem
+            ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // O resultado da seleção de imagem está disponível aqui
+                            Uri imageUri = result.getData().getData();
+                            // Faça algo com a URI da imagem selecionada
+                        }
+                    });
+
+            // Inicia a atividade de seleção de imagem com o launcher
+            launcher.launch(intent);
         }
     }
+
 
     // Manipula a resposta à solicitação de permissão
     @Override
@@ -228,4 +316,63 @@ public class CreateNoteActivity extends AppCompatActivity {
             executor.shutdown();
         }
     };
+
+    private void showAddURLDialog(){
+        // Verifica se o diálogo já está criado, se não estiver, cria um novo
+        if (dialogAddURL ==null){
+            // Cria uma instância do AlertDialog.Builder passando o contexto da CreateNoteActivity
+            AlertDialog.Builder builder = new AlertDialog.Builder(CreateNoteActivity.this);
+
+            // Infla o layout personalizado para o diálogo de adicionar URL
+            View view = LayoutInflater.from(this).inflate(
+                    R.layout.layout_add_url,
+                    (ViewGroup) findViewById(R.id.layoutAddUrlContainer));
+
+            // Define a view personalizada para o diálogo
+            builder.setView(view);
+
+            // Cria o diálogo com base nas configurações definidas
+            dialogAddURL = builder.create();
+
+            // Configura o fundo do diálogo como transparente
+            if(dialogAddURL.getWindow() !=null){
+                dialogAddURL.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+            }
+
+            // Obtém a referência para o EditText de entrada da URL
+            final EditText inputURL = view.findViewById(R.id.inputURl);
+            inputURL.requestFocus();
+
+            // Configura o clique no botão de adicionar no diálogo
+            view.findViewById(R.id.textAdd).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Verifica se o campo de entrada da URL está vazio
+                    if (inputURL.getText().toString().trim().isEmpty()){
+                        Toast.makeText(CreateNoteActivity.this, "Enter URL", Toast.LENGTH_SHORT).show();
+                    }
+                    // Verifica se o formato da URL é válido
+                    else if (Patterns.WEB_URL.matcher(inputURL.getText().toString()).matches()){
+                        Toast.makeText(CreateNoteActivity.this, "Entre com um URL válido",Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        textWebURL.setText(inputURL.getText().toString());
+                        layoutWebURL.setVisibility(View.VISIBLE);
+                        dialogAddURL.dismiss();
+                    }
+                }
+            });
+            // Configura o clique no botão "Cancel" no diálogo
+            view.findViewById(R.id.textCancel).setOnClickListener(new View.OnClickListener(){
+                @Override
+                        public void onClick(View v){
+                    // Fecha o diálogo
+                    dialogAddURL.dismiss();
+                }
+            });
+        }
+        // Exibe o diálogo para adicionar uma URL
+        dialogAddURL.show();
+    }
+
 }
