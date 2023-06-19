@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutDeleteNoteContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="10dp"
+    android:background="@drawable/background_dialog">
+    
+    <ImageView
+        android:id="@+id/ImageDeleteNote"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/ic_delete"
+        android:tint="@color/colorWhite"
+        app:layout_constraintStart_toStartOf="parente"
+        app:layout_constraintTop_toTopOf="parente"
+        tools:ignore="UseAppTint"/>
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
 
 </androidx.constraintlayout.widget.ConstraintLayout>
