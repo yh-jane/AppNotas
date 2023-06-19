@@ -44,8 +44,6 @@ import java.util.concurrent.Executors;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
-
-
 public class CreateNoteActivity extends AppCompatActivity {
 
     private EditText inputNoteTitle, inputNoteSubtitle, inputNoteText;
@@ -57,14 +55,15 @@ public class CreateNoteActivity extends AppCompatActivity {
     private String selectedNoteColor;
     private String selectedImagePath;
 
-    private static final int REQUEST_CODE_STORAGE_PERMISSION =1;
-    private static final int REQUEST_CODE_SELECT_IMAGE =2;
+    private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
+    private static final int REQUEST_CODE_SELECT_IMAGE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_note);
 
+        // Configuração do layout e inicialização dos elementos da interface
         ImageView imageBack = findViewById(R.id.imageBack);
         imageBack.setOnClickListener(v -> onBackPressed());
 
@@ -75,17 +74,23 @@ public class CreateNoteActivity extends AppCompatActivity {
         viewSubtitleIndicator = findViewById(R.id.viewSubtitileIndicator);
         imageNote = findViewById(R.id.imageNote);
 
+        // Define a data e hora atual para exibir na tela
         textDateTime.setText(
                 new SimpleDateFormat("EEEE, dd MMMM yyyy HH:mm a", Locale.getDefault())
                         .format(new Date())
         );
 
+        // Configura o botão de salvar nota
         ImageView imageSave = findViewById(R.id.imageSave);
         imageSave.setOnClickListener(v -> saveNote());
 
+        // Inicializa o executor para executar operações em segundo plano
         executor = Executors.newSingleThreadExecutor();
+
+        // Observa o ciclo de vida do aplicativo e encerra o executor quando a atividade é destruída
         ProcessLifecycleOwner.get().getLifecycle().addObserver(lifecycleObserver);
 
+        // Configurações iniciais
         selectedNoteColor = "#333333";
         selectedImagePath = "";
 
@@ -93,6 +98,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         setSubtitleIndicatorColor();
     }
 
+    // Método para salvar a nota
     private void saveNote() {
         if (inputNoteTitle.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "O Título da Nota não pode ser vazio", Toast.LENGTH_SHORT).show();
@@ -101,6 +107,8 @@ public class CreateNoteActivity extends AppCompatActivity {
             Toast.makeText(this, "Nota não pode ser vazia", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // Cria uma nova instância da classe Note com os dados da nota
         final Note note = new Note();
         note.setTitle(inputNoteTitle.getText().toString());
         note.setSubtitle(inputNoteSubtitle.getText().toString());
@@ -109,26 +117,18 @@ public class CreateNoteActivity extends AppCompatActivity {
         note.setColor(selectedNoteColor);
         note.setImagePath(selectedImagePath);
 
-        executor.submit(() -> {
-            NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNote(note);
-            runOnUiThread(() -> {
-                Intent intent = new Intent();
-                setResult(RESULT_OK, intent);
-                finish();
-            });
-        });
+        // Salva a nota no banco de dados usando um ExecutorService em segundo plano
+        executor.execute(() -> NotesDatabase.getDatabase(getApplicationContext()).noteDao().insertNote(note));
+
+        // Fecha a atividade e retorna o resultado para a atividade que a chamou
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 
-    private final LifecycleObserver lifecycleObserver = new LifecycleObserver() {
-        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        public void onDestroy() {
-            executor.shutdown();
-        }
-    };
-
+    // Método para inicializar o painel inferior com opções adicionais
     private void initMiscellaneous() {
-        final LinearLayout layoutMiscellaneous = findViewById(R.id.layoutMiscellaneous);
-        final BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(layoutMiscellaneous);
+        LinearLayout layoutMiscellaneous = findViewById(R.id.layoutMiscellaneous);
+        BottomSheetBehavior<LinearLayout> bottomSheetBehavior = BottomSheetBehavior.from(layoutMiscellaneous);
         layoutMiscellaneous.findViewById(R.id.textMiscellaneous).setOnClickListener(v -> {
             if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -136,67 +136,12 @@ public class CreateNoteActivity extends AppCompatActivity {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
-        final ImageView imageColor1 = layoutMiscellaneous.findViewById(R.id.imageColor1);
-        final ImageView imageColor2 = layoutMiscellaneous.findViewById(R.id.imageColor2);
-        final ImageView imageColor3 = layoutMiscellaneous.findViewById(R.id.imageColor3);
-        final ImageView imageColor4 = layoutMiscellaneous.findViewById(R.id.imageColor4);
-        final ImageView imageColor5 = layoutMiscellaneous.findViewById(R.id.imageColor5);
 
-        layoutMiscellaneous.findViewById(R.id.viewColor1).setOnClickListener(v -> {
-            selectedNoteColor = "#333333";
-            imageColor1.setImageResource(R.drawable.ic_done);
-            imageColor2.setImageResource(0);
-            imageColor3.setImageResource(0);
-            imageColor4.setImageResource(0);
-            imageColor5.setImageResource(0);
-            setSubtitleIndicatorColor();
-        });
-
-        layoutMiscellaneous.findViewById(R.id.viewColor2).setOnClickListener(v -> {
-            selectedNoteColor = "#FDBE3B";
-            imageColor1.setImageResource(0);
-            imageColor2.setImageResource(R.drawable.ic_done);
-            imageColor3.setImageResource(0);
-            imageColor4.setImageResource(0);
-            imageColor5.setImageResource(0);
-            setSubtitleIndicatorColor();
-        });
-
-        layoutMiscellaneous.findViewById(R.id.viewColor3).setOnClickListener(v -> {
-            selectedNoteColor = "#FF4842";
-            imageColor1.setImageResource(0);
-            imageColor2.setImageResource(0);
-            imageColor3.setImageResource(R.drawable.ic_done);
-            imageColor4.setImageResource(0);
-            imageColor5.setImageResource(0);
-            setSubtitleIndicatorColor();
-        });
-
-        layoutMiscellaneous.findViewById(R.id.viewColor4).setOnClickListener(v -> {
-            selectedNoteColor = "#3A41FC";
-            imageColor1.setImageResource(0);
-            imageColor2.setImageResource(0);
-            imageColor3.setImageResource(0);
-            imageColor4.setImageResource(R.drawable.ic_done);
-            imageColor5.setImageResource(0);
-            setSubtitleIndicatorColor();
-        });
-
-        layoutMiscellaneous.findViewById(R.id.viewColor5).setOnClickListener(v -> {
-            selectedNoteColor = "#000000";
-            imageColor1.setImageResource(0);
-            imageColor2.setImageResource(0);
-            imageColor3.setImageResource(0);
-            imageColor4.setImageResource(0);
-            imageColor5.setImageResource(R.drawable.ic_done);
-            setSubtitleIndicatorColor();
-        });
-
+        // Opção para adicionar imagem
         layoutMiscellaneous.findViewById(R.id.layoutAddImage).setOnClickListener(v -> {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            if (ContextCompat.checkSelfPermission(
-                    getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
                         CreateNoteActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -206,34 +151,23 @@ public class CreateNoteActivity extends AppCompatActivity {
                 selectImage();
             }
         });
-
     }
 
+    // Método para definir a cor do indicador de subtítulo
     private void setSubtitleIndicatorColor() {
         GradientDrawable gradientDrawable = (GradientDrawable) viewSubtitleIndicator.getBackground();
         gradientDrawable.setColor(Color.parseColor(selectedNoteColor));
     }
 
+    // Método para selecionar uma imagem da galeria
     private void selectImage() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if (intent.resolveActivity(getPackageManager()) != null) {
-            // Cria um ActivityResultLauncher para obter o resultado da seleção de imagem
-            ActivityResultLauncher<Intent> launcher = registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                            // O resultado da seleção de imagem está disponível aqui
-                            Uri imageUri = result.getData().getData();
-                            // Faça algo com a URI da imagem selecionada
-                        }
-                    });
-
-            // Inicia a atividade de seleção de imagem com o launcher
-            launcher.launch(intent);
+            startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE);
         }
     }
 
-
+    // Manipula a resposta à solicitação de permissão
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -246,41 +180,50 @@ public class CreateNoteActivity extends AppCompatActivity {
         }
     }
 
+    // Manipula o resultado da atividade de seleção de imagem
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK){
-            if(data != null){
+        if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK) {
+            if (data != null) {
                 Uri selectedImageUri = data.getData();
-                if(selectedImageUri !=null){
-                    try{
+                if (selectedImageUri != null) {
+                    try {
                         InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         imageNote.setImageBitmap(bitmap);
-                        imageNote.setVisibility(View.VISIBLE);
 
+                        // Obtém o caminho da imagem selecionada
                         selectedImagePath = getPathFromUri(selectedImageUri);
-
-                    }catch (Exception exception){
-                        Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         }
     }
 
-    private String getPathFromUri(Uri contentUri){
+    // Método para obter o caminho do arquivo a partir de uma Uri
+    private String getPathFromUri(Uri contentUri) {
         String filePath;
         Cursor cursor = getContentResolver()
                 .query(contentUri, null, null, null, null);
-        if(cursor == null){
+        if (cursor == null) {
             filePath = contentUri.getPath();
-        }else {
+        } else {
             cursor.moveToFirst();
-            int index = cursor.getColumnIndex("data");
+            int index = cursor.getColumnIndex("_data");
             filePath = cursor.getString(index);
             cursor.close();
         }
         return filePath;
     }
+
+    // Observador do ciclo de vida da atividade
+    private final LifecycleObserver lifecycleObserver = new LifecycleObserver() {
+        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        public void onDestroy() {
+            executor.shutdown();
+        }
+    };
 }
