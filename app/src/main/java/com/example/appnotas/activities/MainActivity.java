@@ -4,7 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -24,19 +27,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NotesListener {
-    public static final int REQUEST_CODE_ADD_NOTE = 1;
-    public static final int REQUEST_CODE_UPDATE_NOTE = 2;
-    public static final int REQUEST_CODE_SHOW_NOTES = 3;
-    private RecyclerView notesRecyclerView;
-    private List<Note> noteList;
-    private NotesAdapter notesAdapter;
+        public static final int REQUEST_CODE_ADD_NOTE = 1;
+        public static final int REQUEST_CODE_UPDATE_NOTE = 2;
+        public static final int REQUEST_CODE_SHOW_NOTES = 3;
+        private RecyclerView notesRecyclerView;
+        private List<Note> noteList;
+        private NotesAdapter notesAdapter;
 
-    private int noteClickedPosition = -1;
+        private int noteClickedPosition = -1;
+        private EditText inputSearch; // Mova a declaração do EditText aqui
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
 
         ImageView imageAddNoteMain = findViewById(R.id.imageAddNoteMain);
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(
@@ -56,12 +60,35 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
         notesRecyclerView = findViewById(R.id.notesRecyclerView);
         notesRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         noteList = new ArrayList<>();
-        notesAdapter = new NotesAdapter(noteList,this);
+        notesAdapter = new NotesAdapter(noteList, this);
         notesRecyclerView.setAdapter(notesAdapter);
 
-        getNotes(REQUEST_CODE_SHOW_NOTES,false);
-    }
+        getNotes(REQUEST_CODE_SHOW_NOTES, false);
 
+        inputSearch = findViewById(R.id.inputSearch); // Mova a inicialização do EditText aqui
+        inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Este método é chamado antes de o texto ser alterado.
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Este método é chamado quando o texto está sendo alterado.
+                notesAdapter.cancelTimer();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Este método é chamado após o texto ter sido alterado.
+                if (noteList.size() != 0){
+                    notesAdapter.searchNotes(s.toString());
+                }
+
+            }
+        });
+    }
     @Override
     public void onNoteClicked(Note note, int position) {
         noteClickedPosition = position;
