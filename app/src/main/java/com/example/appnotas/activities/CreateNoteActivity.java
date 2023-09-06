@@ -42,7 +42,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         );
     }
 
-    private void saveNote(){
-        if (inputNoteTitle.getText().toString())
-    }
+    //private void saveNote(){
+     //   if (inputNoteTitle.getText().toString())
+   // }
 }
